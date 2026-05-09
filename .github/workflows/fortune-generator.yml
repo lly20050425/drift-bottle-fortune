@@ -1,9 +1,9 @@
-name: "🌊 漂流瓶运势生成器"
+name: "Drift Bottle Fortune Generator"
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 00:00（北京时间 08:00）生成新漂流瓶
-  workflow_dispatch:  # 支持手动触发
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 permissions:
   issues: write
@@ -12,197 +12,200 @@ jobs:
   generate-fortune:
     runs-on: ubuntu-latest
     steps:
-      - name: "🎲 生成随机漂流瓶"
+      - name: Generate fortune drift bottle
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 运势类型随机选择
           FORTUNE_TYPE=$(shuf -n1 -e "daily" "tarot" "encourage" "zodiac" "lucky")
-
-          # 获取当前日期
           DATE=$(TZ='Asia/Shanghai' date '+%Y-%m-%d')
           WEEKDAY=$(TZ='Asia/Shanghai' date '+%A')
 
-          # 根据类型生成不同的运势内容
           case $FORTUNE_TYPE in
             daily)
-              STARS=$(shuf -n1 -e "⭐⭐⭐⭐⭐" "⭐⭐⭐⭐" "⭐⭐⭐" "⭐⭐⭐⭐⭐" "⭐⭐⭐⭐")
+              STARS=$(shuf -n1 -e "5" "4" "5" "4" "3")
               LUCKY_NUM=$(shuf -i1-99 -n1)
-              LUCKY_COLOR=$(shuf -n1 -e "红色" "蓝色" "绿色" "黄色" "紫色" "橙色" "白色" "粉色")
-              LUCKY_DIR=$(shuf -n1 -e "东方" "南方" "西方" "北方" "东南" "东北" "西南" "西北")
-              MOOD=$(shuf -n1 -e "开心" "平静" "充满活力" "温暖" "期待" "感恩" "自信" "放松")
+              LUCKY_COLOR=$(shuf -n1 -e "Red" "Blue" "Green" "Yellow" "Purple" "Orange" "White" "Pink")
+              LUCKY_DIR=$(shuf -n1 -e "East" "South" "West" "North" "SE" "NE" "SW" "NW")
+              MOOD=$(shuf -n1 -e "Happy" "Calm" "Energetic" "Warm" "Excited" "Grateful" "Confident" "Relaxed")
               ADVICE=$(shuf -n1 -e \
-                "今天适合尝试新事物，勇敢迈出第一步！" \
-                "记得给自己一些独处的时间，充电很重要。" \
-                "与老朋友联系一下吧，他们可能正想着你。" \
-                "今天做决定时相信直觉，它不会让你失望。" \
-                "保持微笑，好运自然来！" \
-                "适合整理思绪，为未来做计划的好日子。" \
-                "今天可能会收到意想不到的好消息！" \
-                "给自己买杯好喝的，犒劳一下自己吧。" \
-                "今天适合学习新技能，你的潜力超乎想象。" \
-                "放下手机，抬头看看天空，你会发现美好。")
+                "Try something new today!" \
+                "Take some me-time to recharge." \
+                "Reach out to an old friend." \
+                "Trust your intuition today." \
+                "Keep smiling, good luck follows!" \
+                "Great day to organize your thoughts." \
+                "Unexpected good news coming your way!" \
+                "Treat yourself to something nice." \
+                "Perfect day to learn a new skill." \
+                "Put down your phone and look at the sky.")
 
-              TITLE="🔮 每日运势 | $DATE"
-              BODY="## 🌊 来自大海的漂流瓶
+              TITLE="Daily Fortune | $DATE"
+              BODY=$(cat <<HEREDOC
+          ## Drift Bottle from the Sea
 
-          > 你捡到了一个漂流瓶，里面藏着今天的运势...
+          > You found a drift bottle with today's fortune inside...
 
           ---
 
-          ### 📅 $DATE $WEEKDAY
+          ### $DATE $WEEKDAY
 
-          ### 🌟 综合运势
-          $STARS
+          ### Overall Fortune
+          $(printf '⭐%.0s' $(seq 1 $STARS))
 
-          | 项目 | 内容 |
-          |------|------|
-          | 🎯 幸运数字 | $LUCKY_NUM |
-          | 🎨 幸运颜色 | $LUCKY_COLOR |
-          | 🧭 幸运方位 | $LUCKY_DIR |
-          | 😊 今日心情 | $MOOD |
+          | Item | Content |
+          |------|---------|
+          | Lucky Number | $LUCKY_NUM |
+          | Lucky Color | $LUCKY_COLOR |
+          | Lucky Direction | $LUCKY_DIR |
+          | Today's Mood | $MOOD |
 
-          ### 💡 今日锦囊
+          ### Today's Tip
           > $ADVICE
 
           ---
 
-          *🫧 这个漂流瓶在 $DATE 随海浪飘来，愿好运与你同在~*
+          *This drift bottle washed ashore on $DATE. May good luck be with you!*
 
           ---
 
-          ## 🎮 玩法说明
-          - 🧭 **捡瓶子**：浏览 Issues 列表，每个 Issue 就是一个漂流瓶
-          - 📝 **扔瓶子**：创建新 Issue，写下你想对陌生人说的话或你的运势
-          - 💬 **回信**：在别人的漂流瓶下评论，传递温暖
-          - ⭐ **收藏**：给你喜欢的漂流瓶点个赞（Reaction）"
+          ## How to Play
+          - **Pick up a bottle**: Browse Issues - each one is a drift bottle
+          - **Throw a bottle**: Create a new Issue with your message or fortune
+          - **Reply**: Comment on others' bottles to spread warmth
+          - **Collect**: Add a Reaction to bottles you love
+          HEREDOC
+              )
               ;;
 
             tarot)
               CARD=$(shuf -n1 -e \
-                "🃏 愚者 (The Fool) - 新的开始，无限可能" \
-                "🌟 魔术师 (The Magician) - 你拥有实现梦想的一切力量" \
-                "🌙 高女祭司 (The High Priestess) - 倾听内心的声音" \
-                "👑 女皇 (The Empress) - 丰收与富足即将到来" \
-                "🏛️ 皇帝 (The Emperor) - 稳固的根基，坚定的领导" \
-                "⛪ 教皇 (The Hierophant) - 寻求智慧的指引" \
-                "💕 恋人 (The Lovers) - 爱与选择的力量" \
-                "🏎️ 战车 (The Chariot) - 勇往直前，胜利在望" \
-                "💪 力量 (Strength) - 内在的力量比你想象的更强大" \
-                "🏔️ 隐者 (The Hermit) - 内省的智慧" \
-                "🎡 命运之轮 (Wheel of Fortune) - 转机即将出现" \
-                "⚖️ 正义 (Justice) - 公平与真相终将到来" \
-                "🪢 倒吊人 (The Hanged Man) - 换个角度看问题" \
-                "💀 死神 (Death) - 结束是新的开始" \
-                "⚖️ 节制 (Temperance) - 平衡是关键" \
-                "😈 恶魔 (The Devil) - 警惕诱惑" \
-                "🗼 高塔 (The Tower) - 突变带来新生" \
-                "⭐ 星星 (The Star) - 希望与灵感" \
-                "🌙 月亮 (The Moon) - 直面内心的恐惧" \
-                "☀️ 太阳 (The Sun) - 光明与喜悦")
+                "The Fool - New beginnings, infinite possibilities" \
+                "The Magician - You have all the power to make dreams real" \
+                "The High Priestess - Listen to your inner voice" \
+                "The Empress - Harvest and abundance coming your way" \
+                "The Emperor - Solid foundation, firm leadership" \
+                "The Hierophant - Seek wisdom and guidance" \
+                "The Lovers - The power of love and choice" \
+                "The Chariot - Forge ahead, victory is in sight" \
+                "Strength - Your inner strength is greater than you think" \
+                "The Hermit - Wisdom through introspection" \
+                "Wheel of Fortune - A turning point is coming" \
+                "Justice - Fairness and truth will prevail" \
+                "The Hanged Man - See things from a different angle" \
+                "Death - Every ending is a new beginning" \
+                "Temperance - Balance is the key" \
+                "The Tower - Sudden change brings new life" \
+                "The Star - Hope and inspiration" \
+                "The Moon - Face your inner fears" \
+                "The Sun - Light and joy")
 
-              RATING=$(shuf -n1 -e "大吉" "中吉" "小吉" "吉" "末吉")
-              POSITION=$(shuf -n1 -e "正位" "逆位")
+              RATING=$(shuf -n1 -e "Great Fortune" "Good Fortune" "Small Fortune" "Fortune" "Moderate")
+              POSITION=$(shuf -n1 -e "Upright" "Reversed")
 
-              TITLE="🃏 签文漂流瓶 | $DATE"
-              BODY="## 🌊 来自远方的漂流瓶
+              TITLE="Tarot Reading | $DATE"
+              BODY=$(cat <<HEREDOC
+          ## Drift Bottle from Afar
 
-          > 一个古老的漂流瓶被海浪冲上了岸...
+          > An ancient drift bottle washed ashore...
 
           ---
 
-          ### 📅 $DATE $WEEKDAY
+          ### $DATE $WEEKDAY
 
-          ### 🎴 今日签文
+          ### Today's Card
 
           **$CARD**
 
-          - 牌位：**$POSITION**
-          - 签运：**$RATING**
+          - Position: **$POSITION**
+          - Fortune: **$RATING**
 
-          ### 📜 签文解读
+          ### Interpretation
           $(shuf -n1 -e \
-            "这张牌暗示着变革的力量正在酝酿，保持开放的心态迎接新的可能。" \
-            "宇宙正在为你编织一段新的故事，耐心等待，美好即将揭晓。" \
-            "这是一个反思与成长的时刻，过去的经历将成为未来的养分。" \
-            "信任自己的直觉，你正在正确的道路上前行。" \
-            "新的机遇正在向你走来，勇敢地伸出双手去迎接吧。")
+            "Change is brewing. Keep an open mind for new possibilities." \
+            "The universe is weaving a new story for you. Be patient." \
+            "This is a time for reflection and growth." \
+            "Trust your intuition. You are on the right path." \
+            "New opportunities are heading your way. Reach out and grab them.")
 
           ---
 
-          *🫧 这张签文随海浪漂泊了许久，终于与你相遇~*
+          *This tarot reading drifted across the sea to find you...*
 
           ---
 
-          ## 🎮 玩法说明
-          - 🧭 **捡瓶子**：浏览 Issues 列表，每个 Issue 就是一个漂流瓶
-          - 📝 **扔瓶子**：创建新 Issue，写下你想对陌生人说的话或你的运势
-          - 💬 **回信**：在别人的漂流瓶下评论，传递温暖
-          - ⭐ **收藏**：给你喜欢的漂流瓶点个赞（Reaction）"
+          ## How to Play
+          - **Pick up a bottle**: Browse Issues - each one is a drift bottle
+          - **Throw a bottle**: Create a new Issue with your message or fortune
+          - **Reply**: Comment on others' bottles to spread warmth
+          - **Collect**: Add a Reaction to bottles you love
+          HEREDOC
+              )
               ;;
 
             encourage)
               QUOTE=$(shuf -n1 -e \
-                "你不必完美，你只需要做你自己。✨" \
-                "每一个清晨都是一个新的开始。🌅" \
-                "你比你想象的更勇敢，比你看上去更坚强。💪" \
-                "生活不会因为你的犹豫而停下脚步，所以勇敢往前走吧。🚶" \
-                "今天的你，是昨天所有选择的结果。明天的你，取决于今天的行动。🌟" \
-                "世界上只有一种英雄主义，就是认清生活后依然热爱它。❤️" \
-                "你的存在本身就是这个世界的礼物。🎁" \
-                "慢慢来，比较快。🐢" \
-                "所有的努力都不会被辜负，只是时间问题。⏳" \
-                "你正在成为更好的自己，即使你看不到。🌱" \
-                "不要因为走得太远，而忘了为什么出发。🧭" \
-                "生活明朗，万物可爱。🌸" \
-                "愿你历尽千帆，归来仍是少年。⛵" \
-                "星光不问赶路人，时光不负有心人。⭐" \
-                "你笑起来真好看，像春天的花一样。🌺")
+                "You don't have to be perfect. Just be yourself." \
+                "Every morning is a fresh start." \
+                "You are braver than you believe." \
+                "Life doesn't wait for hesitation. Keep walking forward." \
+                "Today's you is the result of yesterday's choices." \
+                "The only heroic thing is to love life after seeing it for what it is." \
+                "Your existence is a gift to this world." \
+                "Slow and steady wins the race." \
+                "All efforts will pay off. It's just a matter of time." \
+                "You are becoming a better version of yourself." \
+                "Don't forget why you started." \
+                "Life is bright and everything is lovely." \
+                "May you return as a youth after a thousand sails." \
+                "Starlight doesn't ask the traveler. Time doesn't fail the diligent.")
 
-              AUTHOR=$(shuf -n1 -e "一位路过的旅人" "海边的猫" "远方的风" "星空下的梦" "午后的阳光" "深夜的灯塔" "一只海鸥" "浪花" "贝壳" "漂流瓶自己")
+              AUTHOR=$(shuf -n1 -e "A passing traveler" "A cat by the sea" "The distant wind" "A dream under the stars" "Afternoon sunlight" "A midnight lighthouse" "A seagull" "Ocean waves" "A seashell" "The bottle itself")
 
-              TITLE="💌 温暖漂流瓶 | $DATE"
-              BODY="## 🌊 来自大海的漂流瓶
+              TITLE="Warm Message | $DATE"
+              BODY=$(cat <<HEREDOC
+          ## Drift Bottle from the Sea
 
-          > 你在沙滩上发现了一个闪闪发光的瓶子...
+          > You found a shimmering bottle on the beach...
 
           ---
 
-          ### 📅 $DATE $WEEKDAY
+          ### $DATE $WEEKDAY
 
-          ### 💌 温暖寄语
+          ### A Warm Message
 
           > $QUOTE
 
-          ### 🖊️ 来自
-          *—— $AUTHOR*
+          ### From
+          *-- $AUTHOR*
 
-          ### 🌈 今日小确幸
+          ### Today's Little Joy
           $(shuf -n1 -e \
-            "今天阳光很好，适合出门走走 ☀️" \
-            "你今天一定会遇到一件开心的事 🎉" \
-            "有人正在默默地关心着你 💕" \
-            "今天的咖啡/奶茶会特别好喝 🧋" \
-            "今晚的月亮会格外美丽 🌙" \
-            "你今天做的饭会特别好吃 🍳" \
-            "一首好歌正在等待被发现 🎵" \
-            "今天适合给自己买一束花 🌷")
+            "The sun is beautiful today. Go for a walk!" \
+            "You will encounter something happy today!" \
+            "Someone is silently caring about you." \
+            "Today's coffee/tea will taste extra good." \
+            "Tonight's moon will be especially beautiful." \
+            "Your cooking today will be amazing." \
+            "A great song is waiting to be discovered." \
+            "Today is perfect for buying yourself some flowers.")
 
           ---
 
-          *🫧 这份温暖穿越了大海，只为到达你手中~*
+          *This warmth crossed the ocean just to reach you...*
 
           ---
 
-          ## 🎮 玩法说明
-          - 🧭 **捡瓶子**：浏览 Issues 列表，每个 Issue 就是一个漂流瓶
-          - 📝 **扔瓶子**：创建新 Issue，写下你想对陌生人说的话或你的运势
-          - 💬 **回信**：在别人的漂流瓶下评论，传递温暖
-          - ⭐ **收藏**：给你喜欢的漂流瓶点个赞（Reaction）"
+          ## How to Play
+          - **Pick up a bottle**: Browse Issues - each one is a drift bottle
+          - **Throw a bottle**: Create a new Issue with your message or fortune
+          - **Reply**: Comment on others' bottles to spread warmth
+          - **Collect**: Add a Reaction to bottles you love
+          HEREDOC
+              )
               ;;
 
             zodiac)
-              ZODIAC=$(shuf -n1 -e "鼠🐭" "牛🐮" "虎🐯" "兔🐰" "龙🐲" "蛇🐍" "马🐴" "羊🐑" "猴🐵" "鸡🐔" "狗🐶" "猪🐷")
+              ZODIAC=$(shuf -n1 -e "Rat" "Ox" "Tiger" "Rabbit" "Dragon" "Snake" "Horse" "Goat" "Monkey" "Rooster" "Dog" "Pig")
               SCORE=$(shuf -i60-100 -n1)
               LOVE=$(shuf -i60-100 -n1)
               CAREER=$(shuf -i60-100 -n1)
@@ -210,117 +213,122 @@ jobs:
               HEALTH=$(shuf -i60-100 -n1)
 
               ZODIAC_ADVICE=$(shuf -n1 -e \
-                "今天贵人运旺盛，多参加社交活动会有意外收获！" \
-                "财运不错，但切忌冲动消费，理性理财是关键。" \
-                "感情方面需要多一些耐心和包容，沟通很重要。" \
-                "工作上可能会遇到挑战，但这正是展现能力的机会。" \
-                "注意休息，身体是革命的本钱，别太累了。" \
-                "今天适合学习进修，为未来发展充电。" \
-                "人际关系融洽，适合处理合作事宜。" \
-                "创意灵感爆棚，适合从事艺术或创作类工作。")
+                "Great day for socializing. Unexpected gains await!" \
+                "Good fortune in wealth, but avoid impulse spending." \
+                "Be patient in relationships. Communication is key." \
+                "Work challenges ahead, but they showcase your abilities." \
+                "Rest is important. Don't push yourself too hard." \
+                "Perfect day for learning and self-improvement." \
+                "Harmonious relationships. Good for collaboration." \
+                "Creative inspiration is overflowing today!")
 
-              TITLE="🐉 生肖运势瓶 | $DATE"
-              BODY="## 🌊 来自大海的漂流瓶
+              TITLE="Zodiac Fortune | $DATE"
+              BODY=$(cat <<HEREDOC
+          ## Drift Bottle from the Sea
 
-          > 一个古老的漂流瓶中，藏着生肖的秘密...
+          > An ancient bottle holds zodiac secrets...
 
           ---
 
-          ### 📅 $DATE $WEEKDAY
+          ### $DATE $WEEKDAY
 
-          ### 🐲 生肖运势 - $ZODIAC
+          ### Zodiac Fortune - $ZODIAC
 
-          | 运势维度 | 评分 | 状态 |
-          |----------|------|------|
-          | 📊 综合运势 | $SCORE/100 | $(if [ $SCORE -ge 90 ]; then echo '🔥 大吉'; elif [ $SCORE -ge 80 ]; then echo '✨ 吉'; elif [ $SCORE -ge 70 ]; then echo '😊 中吉'; else echo '🤔 平'; fi) |
-          | 💕 爱情运势 | $LOVE/100 | $(if [ $LOVE -ge 90 ]; then echo '❤️‍🔥 甜蜜'; elif [ $LOVE -ge 80 ]; then echo '💕 暧昧'; elif [ $LOVE -ge 70 ]; then echo '🤝 稳定'; else echo '😌 平淡'; fi) |
-          | 💼 事业运势 | $CAREER/100 | $(if [ $CAREER -ge 90 ]; then echo '🚀 飞升'; elif [ $CAREER -ge 80 ]; then echo '📈 上升'; elif [ $CAREER -ge 70 ]; then echo '📊 稳定'; else echo '🔄 调整'; fi) |
-          | 💰 财富运势 | $WEALTH/100 | $(if [ $WEALTH -ge 90 ]; then echo '💰 暴富'; elif [ $WEALTH -ge 80 ]; then echo '💵 丰收'; elif [ $WEALTH -ge 70 ]; then echo '🏧 小赚'; else echo '🏦 守财'; fi) |
-          | 🏥 健康运势 | $HEALTH/100 | $(if [ $HEALTH -ge 90 ]; then echo '💪 棒极了'; elif [ $HEALTH -ge 80 ]; then echo '🏃 良好'; elif [ $HEALTH -ge 70 ]; then echo '😌 一般'; else echo '⚠️ 注意'; fi) |
+          | Dimension | Score | Status |
+          |-----------|-------|--------|
+          | Overall | $SCORE/100 | $(if [ $SCORE -ge 90 ]; then echo 'Excellent'; elif [ $SCORE -ge 80 ]; then echo 'Great'; elif [ $SCORE -ge 70 ]; then echo 'Good'; else echo 'Average'; fi) |
+          | Love | $LOVE/100 | $(if [ $LOVE -ge 90 ]; then echo 'Blissful'; elif [ $LOVE -ge 80 ]; then echo 'Romantic'; elif [ $LOVE -ge 70 ]; then echo 'Stable'; else echo 'Calm'; fi) |
+          | Career | $CAREER/100 | $(if [ $CAREER -ge 90 ]; then echo 'Soaring'; elif [ $CAREER -ge 80 ]; then echo 'Rising'; elif [ $CAREER -ge 70 ]; then echo 'Steady'; else echo 'Adjusting'; fi) |
+          | Wealth | $WEALTH/100 | $(if [ $WEALTH -ge 90 ]; then echo 'Jackpot'; elif [ $WEALTH -ge 80 ]; then echo 'Harvest'; elif [ $WEALTH -ge 70 ]; then echo 'Profit'; else echo 'Save'; fi) |
+          | Health | $HEALTH/100 | $(if [ $HEALTH -ge 90 ]; then echo 'Amazing'; elif [ $HEALTH -ge 80 ]; then echo 'Great'; elif [ $HEALTH -ge 70 ]; then echo 'Normal'; else echo 'Caution'; fi) |
 
-          ### 📌 运势锦囊
+          ### Fortune Tip
           > $ZODIAC_ADVICE
 
           ---
 
-          *🫧 这只 $ZODIAC 守护的漂流瓶穿越了星辰大海~*
+          *This $ZODIAC-guarded bottle crossed the stars and sea...*
 
           ---
 
-          ## 🎮 玩法说明
-          - 🧭 **捡瓶子**：浏览 Issues 列表，每个 Issue 就是一个漂流瓶
-          - 📝 **扔瓶子**：创建新 Issue，写下你想对陌生人说的话或你的运势
-          - 💬 **回信**：在别人的漂流瓶下评论，传递温暖
-          - ⭐ **收藏**：给你喜欢的漂流瓶点个赞（Reaction）"
+          ## How to Play
+          - **Pick up a bottle**: Browse Issues - each one is a drift bottle
+          - **Throw a bottle**: Create a new Issue with your message or fortune
+          - **Reply**: Comment on others' bottles to spread warmth
+          - **Collect**: Add a Reaction to bottles you love
+          HEREDOC
+              )
               ;;
 
             lucky)
-              LUCKY_THINGS=$(shuf -n1 -e "一杯温暖的咖啡" "一朵路边的野花" "一首老歌" "一本好书" "一个久违的电话" "一次偶然的相遇" "一场美丽的日落" "一阵清爽的微风" "一个甜甜的微笑" "一个慵懒的午后" "一次说走就走的散步" "一份意外的惊喜")
-              LUCKY_FOOD=$(shuf -n1 -e "火锅" "奶茶" "蛋糕" "冰淇淋" "寿司" "披萨" "炸鸡" "面条" "饺子" "水果沙拉" "巧克力" "烤肉")
-              COLOR=$(shuf -n1 -e "珊瑚红" "天空蓝" "薄荷绿" "向日葵黄" "薰衣草紫" "蜜桃粉" "云朵白" "深海蓝" "森林绿" "日落橙")
+              LUCKY_THINGS=$(shuf -n1 -e "A warm cup of coffee" "A wildflower by the road" "An old song" "A good book" "A long-overdue phone call" "A chance encounter" "A beautiful sunset" "A cool breeze" "A sweet smile" "A lazy afternoon" "A spontaneous walk" "An unexpected surprise")
+              LUCKY_FOOD=$(shuf -n1 -e "Hot pot" "Bubble tea" "Cake" "Ice cream" "Sushi" "Pizza" "Fried chicken" "Noodles" "Dumplings" "Fruit salad" "Chocolate" "BBQ")
+              COLOR=$(shuf -n1 -e "Coral Red" "Sky Blue" "Mint Green" "Sunflower Yellow" "Lavender Purple" "Peach Pink" "Cloud White" "Deep Sea Blue" "Forest Green" "Sunset Orange")
               NUM1=$(shuf -i1-9 -n1)
               NUM2=$(shuf -i0-9 -n1)
               NUM3=$(shuf -i0-9 -n1)
 
-              TITLE="🍀 幸运漂流瓶 | $DATE"
-              BODY="## 🌊 来自大海的漂流瓶
+              TITLE="Lucky Bottle | $DATE"
+              BODY=$(cat <<HEREDOC
+          ## Drift Bottle from the Sea
 
-          > 一个装满幸运的瓶子被海浪送到了你面前...
+          > A bottle full of luck washed up before you...
 
           ---
 
-          ### 📅 $DATE $WEEKDAY
+          ### $DATE $WEEKDAY
 
-          ### 🍀 今日幸运清单
+          ### Lucky List
 
-          | 🍀 幸运项目 | 详情 |
-          |-------------|------|
-          | 🔢 幸运数字 | $NUM1$NUM2$NUM3 |
-          | 🎨 幸运色彩 | $COLOR |
-          | 🍽️ 幸运美食 | $LUCKY_FOOD |
-          | 🎁 幸运事物 | $LUCKY_THINGS |
+          | Lucky Item | Details |
+          |------------|---------|
+          | Lucky Number | $NUM1$NUM2$NUM3 |
+          | Lucky Color | $COLOR |
+          | Lucky Food | $LUCKY_FOOD |
+          | Lucky Thing | $LUCKY_THINGS |
 
-          ### ✨ 幸运咒语
-          > 念出这句话，好运加倍：
+          ### Lucky Spell
+          > Say this for double the luck:
           >
-          > **「$(shuf -n1 -e \
-            "今天我是最幸运的人！" \
-            "好运正在赶来的路上！" \
-            "我值得一切美好的事物！" \
-            "宇宙正在为我安排最好的！" \
-            "今天的一切都是最好的安排！"）」**
+          > **"$(shuf -n1 -e \
+            "I am the luckiest person today!" \
+            "Good luck is on its way!" \
+            "I deserve all good things!" \
+            "The universe is arranging the best for me!" \
+            "Everything today is the best arrangement!")"**
 
-          ### 🎯 幸运任务
+          ### Lucky Mission
           $(shuf -n1 -e \
-            "今天对三个人微笑 😊" \
-            "今天喝八杯水 💧" \
-            "今天早睡半小时 😴" \
-            "今天拍一张好看的照片 📷" \
-            "今天做一件帮助别人的事 🤝" \
-            "今天学一个新单词 📖" \
-            "今天整理一下房间 🧹" \
-            "今天给家人打个电话 📞")
+            "Smile at three people today" \
+            "Drink eight glasses of water today" \
+            "Go to bed 30 minutes early tonight" \
+            "Take a nice photo today" \
+            "Do something helpful for someone today" \
+            "Learn a new word today" \
+            "Tidy up your room today" \
+            "Call your family today")
 
           ---
 
-          *🫧 这个幸运瓶带着四叶草的祝福飘洋过海~*
+          *This lucky bottle carries a four-leaf clover's blessing across the sea...*
 
           ---
 
-          ## 🎮 玩法说明
-          - 🧭 **捡瓶子**：浏览 Issues 列表，每个 Issue 就是一个漂流瓶
-          - 📝 **扔瓶子**：创建新 Issue，写下你想对陌生人说的话或你的运势
-          - 💬 **回信**：在别人的漂流瓶下评论，传递温暖
-          - ⭐ **收藏**：给你喜欢的漂流瓶点个赞（Reaction）"
+          ## How to Play
+          - **Pick up a bottle**: Browse Issues - each one is a drift bottle
+          - **Throw a bottle**: Create a new Issue with your message or fortune
+          - **Reply**: Comment on others' bottles to spread warmth
+          - **Collect**: Add a Reaction to bottles you love
+          HEREDOC
+              )
               ;;
           esac
 
-          # 创建 Issue（漂流瓶）
           gh issue create \
             --repo lly20050425/drift-bottle-fortune \
             --title "$TITLE" \
             --body "$BODY" \
-            --label "漂流瓶" \
+            --label "drift-bottle" \
             --label "$FORTUNE_TYPE"
 
-          echo "🌊 新的漂流瓶已生成！类型: $FORTUNE_TYPE"
+          echo "New drift bottle generated! Type: $FORTUNE_TYPE"
